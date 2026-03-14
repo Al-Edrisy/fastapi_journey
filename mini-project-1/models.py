@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field
 from typing import List, Optional
 from enum import Enum
 
@@ -17,5 +17,5 @@ class Student(BaseModel):
     student_id: int = Field(..., gt=0)
     name: str = Field(..., min_length=2, max_length=50)
     age: int = Field(..., ge=18, le=100)
-    email: EmailStr
+    email: str
     enrollments: List[Enrollment] = []
