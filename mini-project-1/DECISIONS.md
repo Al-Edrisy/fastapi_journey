@@ -7,7 +7,7 @@ This document explains the design choices made for the Course Enrollment API.
 I chose the following field types for the `Student` and `Enrollment` models:
 
 - **`int` (student_id, course_id, age)**: Used for unique identifiers and age because these values are naturally whole numbers.
-- **`str` (name, course_name, email)**: Used for textual data. I used `EmailStr` (inheriting from str) for the email field to ensure basic format validation.
+- **`str` (name, course_name, email)**: Used for textual data. I used `str` for the email field to maintain simplicity and avoid additional dependency requirements while ensuring clean data storage.
 - **`float` (grade)**: Used for grades because they can include decimals (e.g., 3.5).
 - **`Enum` (semester)**: Used fixed values (`FALL`, `SPRING`, `SUMMER`) to prevent invalid semester entries like "Winter" or "Random".
 - **`List[Enrollment]`**: Used to represent the one-to-many relationship where a student can have multiple enrollments.
