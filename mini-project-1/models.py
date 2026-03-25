@@ -40,6 +40,10 @@ class Enrollment(Base):
     student = relationship("Student", back_populates="enrollments")
     course = relationship("Course", back_populates="enrollments")
 
+    @property
+    def course_name(self):
+        return self.course.name if self.course else "Unknown Course"
+
 # --- Pydantic Schemas ---
 
 class EnrollmentBase(BaseModel):
