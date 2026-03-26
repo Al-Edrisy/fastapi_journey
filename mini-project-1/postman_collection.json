@@ -1,0 +1,155 @@
+{
+	"info": {
+		"_postman_id": "7a3b4c5d-1e2f-4a3b-9c8d-7e6f5a4b3c2d",
+		"name": "Mini Project 1 - Course Enrollment API",
+		"description": "Postman collection for testing the Course Enrollment API built for SFWE477 Mini Project 1. Includes CRUD operations for Students and their nested Enrollments.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Students",
+			"item": [
+				{
+					"name": "Get All Students",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/students/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"students",
+								""
+							]
+						},
+						"description": "Returns a list of all students. This endpoint simulates a 1-second delay."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Student by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/students/1",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"students",
+								"1"
+							]
+						},
+						"description": "Returns a single student by their ID, including all their nested enrollment records."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Student",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"student_id\": 1,\n    \"name\": \"Salih Otman\",\n    \"age\": 22,\n    \"email\": \"salih@example.com\",\n    \"enrollments\": [\n        {\n            \"course_id\": 101,\n            \"course_name\": \"FastAPI 101\",\n            \"semester\": \"Fall\",\n            \"grade\": 4.0\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/students/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"students",
+								""
+							]
+						},
+						"description": "Adds a new student to the database. Validates input using Pydantic models."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Student",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"student_id\": 1,\n    \"name\": \"Salih Samier Otman\",\n    \"age\": 23,\n    \"email\": \"salih.updated@example.com\",\n    \"enrollments\": [\n        {\n            \"course_id\": 101,\n            \"course_name\": \"Advanced FastAPI\",\n            \"semester\": \"Spring\",\n            \"grade\": 3.8\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/students/1",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"students",
+								"1"
+							]
+						},
+						"description": "Updates an existing student's information by ID."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Student",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/students/1",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"students",
+								"1"
+							]
+						},
+						"description": "Removes a student from the database by ID."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

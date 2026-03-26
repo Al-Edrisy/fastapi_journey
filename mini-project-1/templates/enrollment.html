@@ -1,0 +1,135 @@
+<!-- TODO: This file must be named enrollment.html and placed inside mini-project-1/templates/ -->
+
+{% extends "home.html" %}
+
+<!-- TODO: Block name must match home.html exactly — keep as enrollment_container -->
+{% block enrollment_container %}
+
+<main class="container">
+    <hr>
+
+    <!-- ─── ADD FORM ─────────────────────────────────────────────────────── -->
+    <section class="container-fluid mb-4">
+        <form method="post">
+            <div class="input-group">
+                <input
+                    class="form-control"
+                    type="text"
+                    name="item"
+                    aria-label="Add a student"
+                    placeholder="Enter student full name"
+                    value="{{ enrollment.name if enrollment else '' }}"
+                />
+                <div class="input-group-append">
+                    <button class="btn btn-purple" style="background-color:#6f42c1; color:white;" type="submit">
+                        <i class="fas fa-graduation-cap mr-1"></i> Add Student
+                    </button>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    <!-- ─── SINGLE ITEM VIEW ─────────────────────────────────────────────
+         TODO: field names must match your Student Pydantic model exactly.
+         Expected fields: enrollment.id, enrollment.student_name, enrollment.course, enrollment.gpa
+         Add or remove <p> rows to match your actual model fields.         -->
+
+    {% if enrollment %}
+    <article class="card shadow-sm mb-4">
+        <div class="card-header text-white" style="background-color:#6f42c1;">
+            <h4 class="mb-0"><i class="fas fa-user-graduate mr-2"></i>Enrollment Details</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Student ID:</strong> {{ enrollment.student_id }}</p>
+            <p><strong>Name:</strong> {{ enrollment.name }}</p>
+            <p><strong>Age:</strong> {{ enrollment.age }}</p>
+            <p><strong>Email:</strong> {{ enrollment.email }}</p>
+
+            <p><strong>Enrolled Courses:</strong> {{ enrollment.enrollments | length }} registered</p>
+
+            {% if enrollment.enrollments %}
+            <ul class="list-group list-group-flush mt-3">
+                {% for course in enrollment.enrollments %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ course.course_name }} ({{ course.semester.value if hasattr(course.semester, 'value') else course.semester }})
+                    <span class="badge badge-info badge-pill">{{ course.grade }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            <!-- Add Enrollment Form -->
+            <div class="mt-4 border-top pt-3">
+                <h6 class="text-muted mb-3"><i class="fas fa-plus-circle mr-1"></i> Enroll in New Course</h6>
+                <form method="post">
+                    <div class="form-row">
+                        <div class="col-md-7 mb-2">
+                            <select name="course_id" class="form-control form-control-sm" required>
+                                <option value="" disabled selected>Select a course...</option>
+                                {% for c in available_courses %}
+                                <option value="{{ c.id }}">{{ c.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <select name="semester" class="form-control form-control-sm">
+                                <option value="Fall">Fall</option>
+                                <option value="Spring">Spring</option>
+                                <option value="Summer">Summer</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <button type="submit" class="btn btn-purple btn-sm btn-block" style="background-color:#6f42c1; color:white;">
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <a href="/" class="btn btn-outline-secondary btn-sm mt-2">
+                <i class="fas fa-arrow-left mr-1"></i> Back to list
+            </a>
+        </div>
+    </article>
+
+    {% else %}
+
+    <!-- ─── LIST VIEW ────────────────────────────────────────────────────
+         TODO: Loop variable is "enrollment", list variable is "enrollments"
+               Link href must be /enrollment/ID           -->
+    <section class="container-fluid">
+        <h2 class="text-center mb-3">
+            <i class="fas fa-list mr-2"></i>All Enrollments
+        </h2>
+        <div class="card shadow-sm">
+            <ul class="list-group list-group-flush">
+                {% for enrollment in enrollments %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>
+                        <span class="badge badge-pill mr-2" style="background-color:#6f42c1; color:white;">{{ loop.index }}</span>
+                        <a href="/enrollment/{{ enrollment.student_id }}">{{ enrollment.name }}</a>
+                    </span>
+                    <span class="text-muted small">{{ enrollment.email }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Available Courses List (Optional/Bonus) -->
+        <div class="mt-4">
+            <h5 class="text-center text-muted mb-3"><i class="fas fa-book mr-2"></i>Available Courses</h5>
+            <div class="row">
+                {% for c in available_courses %}
+                <div class="col-md-3 mb-2">
+                    <div class="card p-2 text-center shadow-sm small">{{ c.name }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+    </section>
+
+</main>
+
+{% endblock %}
