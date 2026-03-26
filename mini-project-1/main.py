@@ -7,7 +7,7 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Course Enrollment API")
 
-@app.get("/")
+@app.get("/home")
 async def welcome() -> dict:
     return {"message": "Welcome to the Course Enrollment API"}
 

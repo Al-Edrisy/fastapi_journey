@@ -38,7 +38,7 @@ def seed_courses(db: Session):
 @enrollment_router.get("/students/", response_model=List[schemas.StudentSchema])
 async def get_students(db: Session = Depends(get_db)):
     """Return all students."""
-    # await asyncio.sleep(1) # Simulated delay
+    await asyncio.sleep(1) # Simulated delay
     return crud.get_students(db)
 
 @enrollment_router.get("/students/{student_id}", response_model=schemas.StudentSchema)
@@ -98,7 +98,7 @@ def get_courses_sync(db: Session = Depends(get_db)):
 
 # --- HTML Routes ---
 
-@enrollment_router.get("/home", response_class=HTMLResponse)
+@enrollment_router.get("/", response_class=HTMLResponse)
 async def home(request: Request, db: Session = Depends(get_db)):
     seed_courses(db)
     students = crud.get_students(db)
@@ -110,18 +110,19 @@ async def home(request: Request, db: Session = Depends(get_db)):
         "available_courses": courses
     })
 
-@enrollment_router.post("/home", response_class=HTMLResponse)
+@enrollment_router.post("/", response_class=HTMLResponse)
 async def create_student_form(request: Request, item: str = Form(...), db: Session = Depends(get_db)):
     # Simple ID generation for the student_id (ui requirement)
     # In a real app, this might be handled differently
     last_student = db.query(models.Student).order_by(models.Student.student_id.desc()).first()
     new_student_id = (last_student.student_id + 1) if last_student else 1
     
+    clean_name = item.strip()
     new_student = schemas.StudentCreate(
         student_id=new_student_id,
-        name=item,
+        name=clean_name,
         age=20,
-        email=f"{item.lower().replace(' ', '.')}@example.com"
+        email=f"{clean_name.lower().replace(' ', '.')}@example.com"
     )
     crud.create_student(db, new_student)
     
