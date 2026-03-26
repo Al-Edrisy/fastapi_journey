@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 from database import get_db
 import models
 import crud
-import schemas
 from typing import List
 import asyncio
 
