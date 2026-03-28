@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+venv/
+.env
+mini-project-2/.env
+store/
