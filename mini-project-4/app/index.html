@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Polling Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --primary-glow: rgba(56, 189, 248, 0.5);
+            --secondary-glow: rgba(168, 85, 247, 0.5);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(168, 85, 247, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(56, 189, 248, 0.15), transparent 25%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #38bdf8, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            animation: pulse-glow 3s infinite alternate;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            background: rgba(15, 23, 42, 0.6);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--accent), #2563eb);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--primary-glow);
+            filter: brightness(1.1);
+        }
+
+        button.outline {
+            background: transparent;
+            border: 1px solid var(--accent);
+            box-shadow: none;
+        }
+
+        button.outline:hover {
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        /* Active Polls List */
+        .poll-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .poll-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent);
+        }
+
+        .poll-item h4 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .poll-item p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
+        .join-btn {
+            width: auto;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            border-radius: 8px;
+        }
+
+        /* Live Dashboard */
+        #live-poll-section {
+            display: none;
+            margin-top: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #live-poll-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(to right, var(--success), var(--accent));
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
+
+        .status-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background-color: var(--danger);
+            transition: background-color 0.3s;
+        }
+
+        .status-dot.connected {
+            background-color: var(--success);
+            box-shadow: 0 0 10px var(--success);
+            animation: pulse-dot 2s infinite;
+        }
+
+        .live-question {
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            margin-top: 10px;
+        }
+
+        .option-row {
+            margin-bottom: 25px;
+        }
+
+        .option-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .option-name {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .option-stats {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .bar-container {
+            width: 100%;
+            height: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #38bdf8, #a855f7);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 2s infinite;
+        }
+
+        .vote-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+            display: inline-block;
+            box-shadow: none;
+            width: auto;
+        }
+
+        .vote-btn:hover {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        @keyframes pulse-glow {
+            0% { text-shadow: 0 0 20px rgba(56, 189, 248, 0.2); }
+            100% { text-shadow: 0 0 30px rgba(168, 85, 247, 0.6); }
+        }
+
+        @keyframes pulse-dot {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Real-Time Polling Dashboard</h1>
+            <p>Experience instant synchronization powered by FastAPI and WebSockets.</p>
+        </div>
+
+        <div class="grid">
+            <!-- Sidebar: Create Poll & List -->
+            <div class="sidebar">
+                <div class="glass-panel" style="margin-bottom: 30px;">
+                    <h3>Create New Poll</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Launch a new live voting session.</p>
+                    
+                    <div class="form-group">
+                        <label for="question">Poll Question</label>
+                        <input type="text" id="question" placeholder="e.g. Which framework is the best?">
+                    </div>
+                    <div class="form-group">
+                        <label for="options">Options (comma-separated)</label>
+                        <input type="text" id="options" placeholder="FastAPI, Express, Django, Spring">
+                    </div>
+                    <button onclick="createPoll()">Launch Poll</button>
+                </div>
+
+                <div class="glass-panel">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3>Active Sessions</h3>
+                        <button class="outline" style="width: auto; padding: 6px 12px; font-size: 0.8rem;" onclick="loadPolls()">↻ Refresh</button>
+                    </div>
+                    <div id="polls-list">
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Loading polls...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Dashboard: Live View -->
+            <div class="main-content">
+                <div class="glass-panel" id="empty-state">
+                    <div style="text-align: center; padding: 60px 20px; color: var(--text-muted);">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px; opacity: 0.5;">
+                            <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+                        </svg>
+                        <h3>No Poll Selected</h3>
+                        <p style="margin-top: 10px;">Create or join an active poll from the sidebar to view the live dashboard.</p>
+                    </div>
+                </div>
+
+                <div class="glass-panel" id="live-poll-section">
+                    <div class="status-indicator">
+                        <div class="status-dot" id="status-dot"></div>
+                        <span id="connection-status">Connecting...</span>
+                    </div>
+                    
+                    <h2 class="live-question" id="live-poll-question">Loading Question...</h2>
+                    
+                    <div id="live-poll-options">
+                        <!-- Options injected via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let currentPollId = null;
+
+        // Colors for bars to make them vibrant
+        const barColors = [
+            'linear-gradient(90deg, #38bdf8, #818cf8)',
+            'linear-gradient(90deg, #f472b6, #fb7185)',
+            'linear-gradient(90deg, #34d399, #10b981)',
+            'linear-gradient(90deg, #fbbf24, #f59e0b)',
+            'linear-gradient(90deg, #a855f7, #8b5cf6)'
+        ];
+
+        async function createPoll() {
+            const question = document.getElementById('question').value;
+            const optionsInput = document.getElementById('options').value;
+            
+            if (!question || !optionsInput) {
+                alert('Please provide a question and options.');
+                return;
+            }
+
+            const options = optionsInput.split(',').map(s => s.trim()).filter(s => s);
+            
+            try {
+                const res = await fetch('/polls', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question, options })
+                });
+                
+                if(res.ok) {
+                    const data = await res.json();
+                    document.getElementById('question').value = '';
+                    document.getElementById('options').value = '';
+                    loadPolls();
+                    joinPoll(data.id); // Auto join newly created poll
+                }
+            } catch (err) {
+                console.error("Error creating poll", err);
+                alert("Failed to create poll. Is the server running?");
+            }
+        }
+
+        async function loadPolls() {
+            try {
+                const res = await fetch('/polls');
+                const polls = await res.json();
+                const list = document.getElementById('polls-list');
+                
+                if (polls.length === 0) {
+                    list.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem; text-align: center;">No active polls found.</p>';
+                    return;
+                }
+
+                list.innerHTML = '';
+                polls.forEach(poll => {
+                    const div = document.createElement('div');
+                    div.className = 'poll-item';
+                    div.innerHTML = `
+                        <div>
+                            <h4>${poll.question}</h4>
+                            <p>${poll.id.substring(0, 8)}...</p>
+                        </div>
+                        <button class="join-btn" onclick="joinPoll('${poll.id}')">Join Live</button>
+                    `;
+                    list.appendChild(div);
+                });
+            } catch (err) {
+                console.error("Error loading polls", err);
+            }
+        }
+
+        function joinPoll(pollId) {
+            currentPollId = pollId;
+            document.getElementById('empty-state').style.display = 'none';
+            document.getElementById('live-poll-section').style.display = 'block';
+            
+            if (ws) {
+                ws.close();
+            }
+
+            const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+            ws = new WebSocket(`${protocol}//${window.location.host}/ws/polls/${pollId}`);
+            
+            const dot = document.getElementById('status-dot');
+            const text = document.getElementById('connection-status');
+
+            ws.onopen = function() {
+                dot.classList.add('connected');
+                text.innerText = 'Connected (Live updates active)';
+            };
+            
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                if(data.error) {
+                    console.error("WebSocket Error:", data.error);
+                    return;
+                }
+                updateLivePollUI(data);
+            };
+            
+            ws.onclose = function() {
+                dot.classList.remove('connected');
+                text.innerText = 'Disconnected. Connection lost.';
+            };
+        }
+
+        function updateLivePollUI(poll) {
+            document.getElementById('live-poll-question').innerText = poll.question;
+            const optionsDiv = document.getElementById('live-poll-options');
+            
+            let totalVotes = 0;
+            for(let opt in poll.votes) totalVotes += poll.votes[opt];
+
+            // Only rebuild the DOM if options changed or it's empty, otherwise just update widths to keep animations smooth
+            if (optionsDiv.children.length === 0) {
+                poll.options.forEach((option, index) => {
+                    const votes = poll.votes[option];
+                    const percentage = totalVotes === 0 ? 0 : ((votes / totalVotes) * 100).toFixed(1);
+                    const color = barColors[index % barColors.length];
+                    
+                    const row = document.createElement('div');
+                    row.className = 'option-row';
+                    row.id = `opt-row-${index}`;
+                    
+                    row.innerHTML = `
+                        <div class="option-header">
+                            <span class="option-name">${option}</span>
+                            <span class="option-stats" id="stats-${index}">${votes} votes (${percentage}%)</span>
+                        </div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="bar-${index}" style="width: ${percentage}%; background: ${color}"></div>
+                        </div>
+                        <button class="vote-btn" onclick="voteWebsocket('${option}')">Cast Vote for ${option}</button>
+                    `;
+                    optionsDiv.appendChild(row);
+                });
+            } else {
+                // Update existing elements smoothly
+                poll.options.forEach((option, index) => {
+                    const votes = poll.votes[option];
+                    const percentage = totalVotes === 0 ? 0 : ((votes / totalVotes) * 100).toFixed(1);
+                    
+                    document.getElementById(`stats-${index}`).innerText = `${votes} votes (${percentage}%)`;
+                    document.getElementById(`bar-${index}`).style.width = `${percentage}%`;
+                });
+            }
+        }
+
+        function voteWebsocket(option) {
+            if(ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(option);
+            } else {
+                alert("WebSocket not connected! Unable to cast vote.");
+            }
+        }
+
+        // Initialize
+        loadPolls();
+    </script>
+</body>
+</html>
