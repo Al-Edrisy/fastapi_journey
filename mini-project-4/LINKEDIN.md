@@ -1,17 +1,13 @@
-# LinkedIn Post
+Just wrapped up my latest backend project: a Real-Time Polling Dashboard built entirely with FastAPI and WebSockets.
 
-**Post Text:**
-Just completed my latest project: a Real-Time Polling Dashboard built with FastAPI and WebSockets! 🚀 
+Instead of using standard REST APIs where users have to constantly refresh their browser to see new votes, I used WebSockets. This allows the server to keep a persistent connection open and instantly push new vote counts to everyone the second a vote is cast. The difference in the user experience is huge.
 
-Unlike traditional REST APIs where you have to constantly refresh the page to see new votes (polling), WebSockets allow the server to push updates to all connected clients instantly. The result? A true real-time experience! ✨ 
+The biggest technical challenge I ran into was handling sudden client drop-offs. If a user closed their browser while a vote was processing, the app would try to broadcast to a dead connection and crash. I fixed this by building a custom ConnectionManager that catches disconnect exceptions and safely cleans up inactive clients before sending out updates.
 
-One technical challenge I faced was managing active connections cleanly. If a user closed their browser mid-vote, the app could crash trying to send data to a dead connection. I solved this by implementing a custom `ConnectionManager` class that catches `WebSocketDisconnect` exceptions and gracefully removes inactive clients before broadcasting updates.
+You can check out the demo below to see the cross-tab synchronization in action, or view the code on my GitHub.
 
-Check out my GitHub repository to see the code or watch the attached demo to see real-time cross-tab updates in action!
+[https://github.com/aledrisy/fastapi_journey/tree/aledrisy-mini-project-4](https://github.com/aledrisy/mfastapi_journey/tree/aledrisy-mini-project-4) 
 
-[Link to GitHub Branch] / [Demo GIF]
+[demo.mov]
 
-#FastAPI #WebSockets #BackendDevelopment #100DaysOfCode #Python #RealTime
-
-**Public URL:** 
-[To be added by user after publishing]
+#FastAPI #WebSockets #BackendDevelopment #Python #100DaysOfCode
